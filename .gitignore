@@ -1,0 +1,48 @@
+# ==============================================================================
+# AminTivanix2 3D Visualizer - .gitignore
+# ==============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- OS Generated Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --- IDEs and Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Build Artifacts ---
+# Uncomment the line below if you DO NOT want to upload the final generated
+# HTML file to GitHub (e.g., if users are expected to build it themselves).
+# AminTivanix2_3D_Visualizer.html

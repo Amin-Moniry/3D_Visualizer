@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AminTivanix2 3D Visualizer v2.2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #bd00ff;
+        --primary-dim: rgba(189, 0, 255, 0.18);
+        --primary-glow: rgba(189, 0, 255, 0.55);
+        --bg-deep: #040308;
+        --bg-mid: #0a0612;
+        --surface: rgba(8, 4, 16, 0.82);
+        --border: rgba(189, 0, 255, 0.45);
+        --text: #e8d8ff;
+        --text-dim: rgba(232, 216, 255, 0.5);
+        --accent-cyan: #00f5ff;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    body, html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg-deep);
+        font-family: 'Space Mono', monospace;
+    }
+
+    /* ── ANIMATED BACKGROUND GRID ── */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(189, 0, 255, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(189, 0, 255, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+        animation: gridDrift 20s linear infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Radial vignette */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(ellipse 75% 65% at 50% 50%, transparent 30%, #040308 100%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes gridDrift {
+        0%   { background-position: 0 0; }
+        100% { background-position: 48px 48px; }
+    }
+
+    /* ── CANVAS ── */
+    #canvas-container {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    /* ── SCAN LINE OVERLAY ── */
+    .scanlines {
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(0,0,0,0.07) 3px,
+            rgba(0,0,0,0.07) 4px
+        );
+        pointer-events: none;
+        z-index: 3;
+        opacity: 0.4;
+    }
+
+    /* ── TOP BAR ── */
+    #top-bar {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        width: 92%;
+        max-width: 680px;
+        padding: 0;
+        display: flex;
+        align-items: stretch;
+        background: var(--surface);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow:
+            0 0 0 1px rgba(189,0,255,0.08) inset,
+            0 8px 32px rgba(0,0,0,0.7),
+            0 0 40px rgba(189,0,255,0.12);
+        animation: barSlideDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes barSlideDown {
+        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Left accent stripe */
+    #top-bar::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+        border-radius: 14px 0 0 14px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 22px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .brand-logo-wrap {
+        position: relative;
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+
+    .brand-logo-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1.5px solid rgba(189,0,255,0.5);
+        animation: spinRing 4s linear infinite;
+    }
+
+    .brand-logo-ring::before {
+        content: '';
+        position: absolute;
+        top: -2px; left: 50%;
+        width: 4px; height: 4px;
+        background: var(--primary);
+        border-radius: 50%;
+        margin-left: -2px;
+        box-shadow: 0 0 6px var(--primary);
+    }
+
+    .brand-logo-dot {
+        position: absolute;
+        inset: 7px;
+        background: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--primary), 0 0 22px rgba(189,0,255,0.6);
+        animation: pulseDot 2.2s ease-in-out infinite;
+    }
+
+    @keyframes spinRing {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseDot {
+        0%, 100% { transform: scale(1);   opacity: 0.8; }
+        50%       { transform: scale(1.3); opacity: 1;   }
+    }
+
+    .brand-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .brand-text {
+        color: #ffffff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .brand-sub {
+        color: var(--text-dim);
+        font-size: 9px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+    }
+
+    /* Status indicator dots */
+    .status-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        border-left: 1px solid rgba(189,0,255,0.15);
+        border-right: 1px solid rgba(189,0,255,0.15);
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        box-shadow: 0 0 6px var(--primary);
+        animation: blinkDot 1.8s ease-in-out infinite;
+    }
+
+    .status-dot:nth-child(2) { animation-delay: 0.3s; background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px rgba(0,245,255,0.5); }
+    .status-dot:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes blinkDot {
+        0%, 100% { opacity: 0.3; }
+        50%       { opacity: 1;   }
+    }
+
+    /* Upload button */
+    .btn-upload {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #6200c0 0%, #bd00ff 100%);
+        color: #fff;
+        padding: 0 20px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        cursor: pointer;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: filter 0.2s;
+    }
+
+    .btn-upload::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .btn-upload:hover { filter: brightness(1.2); }
+    .btn-upload:hover::before { opacity: 1; }
+
+    .btn-upload::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        animation: shimmer 2.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%   { left: -100%; }
+        50%  { left: 120%;  }
+        100% { left: 120%;  }
+    }
+
+    .upload-icon {
+        font-size: 14px;
+        line-height: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .upload-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── PLACEHOLDER ── */
+    #placeholder-anim {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        pointer-events: none;
+        transition: opacity 0.6s ease;
+    }
+
+    .hologram-ring {
+        position: relative;
+        width: 90px;
+        height: 90px;
+    }
+
+    .ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1.5px solid transparent;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+    }
+
+    .ring-1 {
+        border-color: rgba(189,0,255,0.7) transparent transparent transparent;
+        animation: spinRingA 2.2s linear infinite;
+        box-shadow: 0 0 12px rgba(189,0,255,0.3);
+    }
+
+    .ring-2 {
+        inset: 10px;
+        border-color: transparent rgba(0,245,255,0.85) transparent rgba(0,245,255,0.85);
+        animation: spinRingB 1.6s linear infinite reverse;
+    }
+
+    .ring-3 {
+        inset: 22px;
+        border-color: rgba(189,0,255,0.4) transparent rgba(189,0,255,0.4) transparent;
+        animation: spinRingA 1s linear infinite;
+    }
+
+    .ring-center {
+        position: absolute;
+        inset: 34px;
+        background: radial-gradient(circle, rgba(189,0,255,0.5) 0%, rgba(189,0,255,0.05) 100%);
+        border-radius: 50%;
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    /* Orbiting particle */
+    .orbit-particle {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        animation: spinRingA 3s linear infinite;
+    }
+
+    .orbit-particle::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 50%;
+        width: 5px; height: 5px;
+        background: var(--accent-cyan);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--accent-cyan), 0 0 24px rgba(0,245,255,0.6);
+        margin-left: -2.5px;
+        margin-top: -2.5px;
+    }
+
+    @keyframes spinRingA {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinRingB {
+        to { transform: rotate(-360deg); }
+    }
+
+    .placeholder-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .placeholder-text {
+        color: var(--primary);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        text-shadow: 0 0 12px var(--primary-glow);
+        min-height: 18px;
+        text-align: center;
+    }
+
+    .placeholder-hint {
+        color: var(--text-dim);
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    /* Decorative corner brackets */
+    .corner-brackets {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: breatheBrackets 3s ease-in-out infinite;
+    }
+
+    .corner-brackets::before,
+    .corner-brackets::after {
+        content: '';
+        position: absolute;
+        width: 16px; height: 16px;
+        border-color: rgba(189,0,255,0.4);
+        border-style: solid;
+    }
+
+    .corner-brackets::before {
+        top: 0; left: 0;
+        border-width: 2px 0 0 2px;
+    }
+
+    .corner-brackets::after {
+        bottom: 0; right: 0;
+        border-width: 0 2px 2px 0;
+    }
+
+    @keyframes breatheBrackets {
+        0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+        50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.06); }
+    }
+
+    /* ── SIDE STATS PANEL ── */
+    #side-panel {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        animation: fadeInRight 1s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateY(-50%) translateX(20px); }
+        to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+    }
+
+    .stat-chip {
+        background: var(--surface);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 80px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 12px rgba(189,0,255,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-chip::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
+
+    .stat-label {
+        color: var(--text-dim);
+        font-size: 8px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        color: var(--primary);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        text-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    /* ── BOTTOM BAR ── */
+    #bottom-bar {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        background: var(--surface);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        padding: 8px 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 20px rgba(189,0,255,0.1);
+        animation: fadeInUp 0.8s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+        white-space: nowrap;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .bottom-bar-dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: var(--primary);
+        box-shadow: 0 0 6px var(--primary);
+        margin: 0 10px;
+        flex-shrink: 0;
+        animation: blinkDot 2s ease-in-out infinite;
+    }
+
+    .bottom-bar-text {
+        color: var(--text-dim);
+        font-size: 9.5px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .bottom-bar-author {
+        color: var(--primary);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .bottom-bar-version {
+        color: var(--accent-cyan);
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        opacity: 0.7;
+    }
+
+    /* ── TOAST ── */
+    #toast-notification {
+        position: absolute;
+        top: 86px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px) scale(0.95);
+        opacity: 0;
+        z-index: 100;
+        padding: 9px 18px 9px 14px;
+        border-radius: 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #toast-notification::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    #toast-notification.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .toast-loading {
+        background: rgba(255, 238, 0, 0.08);
+        border: 1px solid rgba(255, 238, 0, 0.3);
+        color: #ffee00;
+        box-shadow: 0 4px 20px rgba(255,238,0,0.15);
+    }
+    .toast-loading::before { background: #ffee00; box-shadow: 0 0 6px #ffee00; animation: blinkDot 0.8s infinite; }
+
+    .toast-success {
+        background: rgba(189, 0, 255, 0.1);
+        border: 1px solid rgba(189,0,255,0.4);
+        color: #e8d0ff;
+        box-shadow: 0 4px 20px rgba(189,0,255,0.2);
+    }
+    .toast-success::before { background: #bd00ff; box-shadow: 0 0 6px #bd00ff; }
+
+    .toast-error {
+        background: rgba(255, 60, 60, 0.1);
+        border: 1px solid rgba(255, 60, 60, 0.35);
+        color: #ffaaaa;
+        box-shadow: 0 4px 20px rgba(255,60,60,0.15);
+    }
+    .toast-error::before { background: #ff4040; box-shadow: 0 0 6px #ff4040; }
+
+    /* ── DRAG & DROP OVERLAY ── */
+    #drop-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        background: rgba(4, 3, 8, 0.88);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    #drop-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .drop-zone-box {
+        width: min(420px, 85vw);
+        padding: 48px 32px;
+        border: 2px dashed var(--primary);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 0 60px rgba(189,0,255,0.2), inset 0 0 40px rgba(189,0,255,0.04);
+        animation: dropPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes dropPulse {
+        0%, 100% { box-shadow: 0 0 40px rgba(189,0,255,0.2), inset 0 0 30px rgba(189,0,255,0.03); }
+        50%       { box-shadow: 0 0 80px rgba(189,0,255,0.45), inset 0 0 50px rgba(189,0,255,0.08); }
+    }
+
+    .drop-icon {
+        font-size: 48px;
+        line-height: 1;
+        filter: drop-shadow(0 0 12px rgba(189,0,255,0.8));
+        animation: dropBounce 1.2s ease-in-out infinite;
+    }
+
+    @keyframes dropBounce {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-8px); }
+    }
+
+    .drop-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 2px;
+    }
+
+    .drop-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    /* ── BOTTOM TOOLBAR ── */
+    #bottom-toolbar {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        padding: 6px 10px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 20px rgba(189,0,255,0.1);
+        animation: fadeInUp 0.9s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .tool-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 30px;
+        padding: 6px 14px;
+        color: var(--text-dim);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .tool-btn:hover, .tool-btn.active {
+        background: var(--primary-dim);
+        border-color: var(--border);
+        color: #fff;
+        box-shadow: 0 0 12px rgba(189,0,255,0.2);
+    }
+
+    .tool-btn .ti {
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .tool-divider {
+        width: 1px;
+        height: 22px;
+        background: rgba(189,0,255,0.2);
+        flex-shrink: 0;
+    }
+
+    /* ── LIGHTING PRESET PANEL ── */
+    #lighting-panel {
+        position: absolute;
+        bottom: 116px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        z-index: 20;
+        background: var(--surface);
+        backdrop-filter: blur(24px);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        display: none;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 260px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 20px rgba(189,0,255,0.12);
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    #lighting-panel.open {
+        display: flex;
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .panel-title {
+        width: 100%;
+        text-align: center;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text-dim);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .preset-btn {
+        flex: 1;
+        min-width: 100px;
+        padding: 8px 10px;
+        background: rgba(189,0,255,0.06);
+        border: 1px solid rgba(189,0,255,0.2);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: 'Space Mono', monospace;
+        font-size: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+        background: var(--primary-dim);
+        border-color: var(--primary);
+        color: #fff;
+        box-shadow: 0 0 10px rgba(189,0,255,0.25);
+    }
+
+    .preset-emoji { font-size: 14px; }
+
+    /* ── ANIMATION SELECTOR PANEL ── */
+    #anim-panel {
+        position: absolute;
+        bottom: 116px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        z-index: 20;
+        background: var(--surface);
+        backdrop-filter: blur(24px);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        width: 240px;
+        max-height: 260px;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 20px rgba(189,0,255,0.12);
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    #anim-panel.open {
+        display: flex;
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    #anim-panel::-webkit-scrollbar { width: 4px; }
+    #anim-panel::-webkit-scrollbar-track { background: transparent; }
+    #anim-panel::-webkit-scrollbar-thumb { background: rgba(189,0,255,0.3); border-radius: 4px; }
+
+    .anim-item {
+        padding: 8px 12px;
+        background: rgba(189,0,255,0.05);
+        border: 1px solid rgba(189,0,255,0.15);
+        border-radius: 8px;
+        color: var(--text-dim);
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .anim-item:hover, .anim-item.active {
+        background: var(--primary-dim);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+    .anim-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        flex-shrink: 0;
+        box-shadow: 0 0 6px var(--primary);
+    }
+
+    .anim-empty {
+        color: var(--text-dim);
+        font-size: 10px;
+        text-align: center;
+        padding: 12px;
+        letter-spacing: 1px;
+    }
+
+    /* ── MODEL LIST PANEL ── */
+    #model-list-panel {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 70vh;
+        overflow-y: auto;
+        animation: fadeInLeft 1s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    #model-list-panel::-webkit-scrollbar { width: 3px; }
+    #model-list-panel::-webkit-scrollbar-thumb { background: rgba(189,0,255,0.3); border-radius: 3px; }
+
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateY(-50%) translateX(-20px); }
+        to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+    }
+
+    .model-chip {
+        background: var(--surface);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        max-width: 160px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 10px rgba(189,0,255,0.07);
+        animation: chipIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes chipIn {
+        from { opacity: 0; transform: translateX(-12px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .model-chip-name {
+        color: var(--text);
+        font-size: 9px;
+        letter-spacing: 0.5px;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .model-chip-idx {
+        color: var(--primary);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .model-remove-btn {
+        background: none;
+        border: none;
+        color: rgba(255,100,100,0.6);
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+        flex-shrink: 0;
+        transition: color 0.15s, transform 0.15s;
+    }
+
+    .model-remove-btn:hover {
+        color: #ff4444;
+        transform: scale(1.2);
+    }
+
+    .model-focus-btn {
+        background: none;
+        border: none;
+        color: rgba(189,0,255,0.5);
+        cursor: pointer;
+        font-size: 13px;
+        line-height: 1;
+        padding: 0;
+        flex-shrink: 0;
+        transition: color 0.15s, transform 0.15s;
+    }
+
+    .model-focus-btn:hover {
+        color: var(--primary);
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 4px var(--primary));
+    }
+
+    .model-chip.focused {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 1px rgba(189,0,255,0.4), 0 0 16px rgba(189,0,255,0.25);
+    }
+
+    /* ── RESPONSIVE ── */
+    /* ── MOBILE MODELS DRAWER ── */
+    #mobile-drawer {
+        display: none;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 200;
+        background: rgba(6, 3, 14, 0.97);
+        backdrop-filter: blur(24px);
+        border-top: 1px solid var(--border);
+        border-radius: 20px 20px 0 0;
+        padding: 0 0 24px 0;
+        box-shadow: 0 -8px 40px rgba(189,0,255,0.2);
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #mobile-drawer.open {
+        transform: translateY(0);
+    }
+
+    .drawer-handle {
+        width: 36px; height: 4px;
+        background: rgba(189,0,255,0.4);
+        border-radius: 2px;
+        margin: 12px auto 16px;
+    }
+
+    .drawer-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-dim);
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    #mobile-model-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0 16px;
+        max-height: 45vh;
+        overflow-y: auto;
+    }
+
+    #mobile-model-list::-webkit-scrollbar { width: 3px; }
+    #mobile-model-list::-webkit-scrollbar-thumb { background: rgba(189,0,255,0.3); border-radius: 3px; }
+
+    .mobile-model-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(189,0,255,0.06);
+        border: 1px solid rgba(189,0,255,0.2);
+        border-radius: 10px;
+        padding: 11px 14px;
+        transition: all 0.15s;
+    }
+
+    .mobile-model-row.focused {
+        border-color: var(--primary);
+        background: rgba(189,0,255,0.14);
+        box-shadow: 0 0 12px rgba(189,0,255,0.2);
+    }
+
+    .mobile-model-num {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--primary);
+        flex-shrink: 0;
+        min-width: 24px;
+    }
+
+    .mobile-model-name {
+        flex: 1;
+        color: var(--text);
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mobile-focus-btn {
+        background: rgba(189,0,255,0.15);
+        border: 1px solid rgba(189,0,255,0.35);
+        border-radius: 6px;
+        color: var(--primary);
+        font-size: 15px;
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.15s;
+    }
+
+    .mobile-focus-btn:hover, .mobile-focus-btn:active {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 0 10px rgba(189,0,255,0.5);
+    }
+
+    .mobile-remove-btn {
+        background: rgba(255,60,60,0.1);
+        border: 1px solid rgba(255,60,60,0.3);
+        border-radius: 6px;
+        color: rgba(255,100,100,0.8);
+        font-size: 13px;
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.15s;
+    }
+
+    .mobile-remove-btn:hover, .mobile-remove-btn:active {
+        background: rgba(255,60,60,0.25);
+        color: #ff4444;
+    }
+
+    .mobile-drawer-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 190;
+        background: rgba(0,0,0,0.5);
+    }
+
+    .mobile-drawer-overlay.open { display: block; }
+
+    /* Models button for mobile toolbar */
+    #btn-mobile-models {
+        display: none;
+    }
+
+    @media (max-width: 480px) {
+        #mobile-drawer { display: block; }
+        .mobile-drawer-overlay { display: none; }
+        .mobile-drawer-overlay.open { display: block; }
+        #btn-mobile-models { display: flex; }
+    }
+
+    @media (max-width: 480px) {
+        #top-bar {
+            top: 12px;
+            width: 94%;
+            border-radius: 12px;
+        }
+
+        .brand {
+            padding: 10px 14px;
+            gap: 10px;
+        }
+
+        .brand-logo-wrap { width: 22px; height: 22px; }
+        .brand-logo-dot { inset: 6px; }
+        .brand-logo-ring::before { width: 3px; height: 3px; margin-left: -1.5px; }
+
+        .brand-text { font-size: 11px; letter-spacing: 0.5px; }
+        .brand-sub { display: none; }
+        .status-row { padding: 0 10px; gap: 6px; }
+        .status-dot { width: 5px; height: 5px; }
+
+        .btn-upload {
+            padding: 0 14px;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+
+        .upload-icon { font-size: 12px; }
+
+        #toast-notification {
+            top: 74px;
+            font-size: 10px;
+            padding: 7px 14px 7px 11px;
+        }
+
+        #side-panel { display: none; }
+
+        .hologram-ring { width: 70px; height: 70px; }
+        .ring-2 { inset: 8px; }
+        .ring-3 { inset: 17px; }
+        .ring-center { inset: 27px; }
+        .corner-brackets { width: 90px; height: 90px; }
+
+        .placeholder-text { font-size: 10px; letter-spacing: 2px; }
+
+        #bottom-bar {
+            bottom: 108px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 8px;
+        }
+
+        .bottom-bar-text { font-size: 8px; letter-spacing: 0.8px; }
+        .bottom-bar-author { font-size: 8px; }
+        .bottom-bar-version { font-size: 7.5px; }
+        .bottom-bar-dot { margin: 0 6px; }
+
+        #bottom-toolbar {
+            bottom: 16px;
+            padding: 5px 8px;
+            gap: 2px;
+            border-radius: 30px;
+            max-width: 96vw;
+        }
+        .tool-btn { padding: 6px 9px; font-size: 8px; gap: 3px; letter-spacing: 0.3px; }
+        .tool-btn .ti { font-size: 12px; }
+        .tool-divider { height: 18px; }
+        #model-list-panel { display: none; }
+        #lighting-panel { width: 88vw; bottom: 76px; left: 50%; transform: translateX(-50%); }
+        #anim-panel { width: 80vw; bottom: 76px; left: 50%; transform: translateX(-50%); }
+    }
+</style>
+
+<script>INJECT_THREE_UMD</script>
+<script>INJECT_GLTF_UMD</script>
+<script>INJECT_ORBIT_UMD</script>
+
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div id="canvas-container"></div>
+
+<!-- Drag & Drop Overlay -->
+<div id="drop-overlay">
+    <div class="drop-zone-box">
+        <div class="drop-icon">⬡</div>
+        <div class="drop-title">RELEASE TO IMPORT</div>
+        <div class="drop-sub">.glb &nbsp;/&nbsp; .gltf</div>
+    </div>
+</div>
+
+<!-- Model List Panel (left side) -->
+<div id="model-list-panel"></div>
+
+<!-- Lighting Preset Panel -->
+<div id="lighting-panel">
+    <div class="panel-title">Lighting Preset</div>
+    <button class="preset-btn active" data-preset="studio" onclick="applyLighting('studio',this)"><span class="preset-emoji">🎬</span> Studio</button>
+    <button class="preset-btn" data-preset="outdoor" onclick="applyLighting('outdoor',this)"><span class="preset-emoji">☀️</span> Outdoor</button>
+    <button class="preset-btn" data-preset="bright" onclick="applyLighting('bright',this)"><span class="preset-emoji">💎</span> Bright</button>
+    <button class="preset-btn" data-preset="dim" onclick="applyLighting('dim',this)"><span class="preset-emoji">🌙</span> Dim</button>
+</div>
+
+<!-- Animation Selector Panel -->
+<div id="anim-panel">
+    <div class="panel-title">Animations</div>
+    <div id="anim-list"><div class="anim-empty">No animations loaded</div></div>
+</div>
+
+<!-- Bottom Toolbar -->
+<div id="bottom-toolbar">
+    <button class="tool-btn" id="btn-mobile-models" onclick="openMobileDrawer()">
+        <span class="ti">📦</span> Models
+    </button>
+    <div class="tool-divider" id="div-mobile-models" style="display:none;"></div>
+    <button class="tool-btn" id="btn-lighting" onclick="togglePanel('lighting')">
+        <span class="ti">💡</span> Lighting
+    </button>
+    <div class="tool-divider"></div>
+    <button class="tool-btn" id="btn-anims" onclick="togglePanel('anims')">
+        <span class="ti">▶</span> Animations
+    </button>
+    <div class="tool-divider"></div>
+    <button class="tool-btn" onclick="takeScreenshot()">
+        <span class="ti">📷</span> Screenshot
+    </button>
+</div>
+
+<!-- Placeholder animation -->
+<div id="placeholder-anim">
+    <div style="position:relative;">
+        <div class="corner-brackets"></div>
+        <div class="hologram-ring">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+            <div class="ring-center"></div>
+            <div class="orbit-particle"></div>
+        </div>
+    </div>
+    <div class="placeholder-label">
+        <div class="placeholder-text" id="typewriter-text"></div>
+        <div class="placeholder-hint">Drop a .glb or .gltf file</div>
+    </div>
+</div>
+
+<!-- Top navigation bar -->
+<div id="top-bar">
+    <div class="brand">
+        <div class="brand-logo-wrap">
+            <div class="brand-logo-ring"></div>
+            <div class="brand-logo-dot"></div>
+        </div>
+        <div class="brand-info">
+            <div class="brand-text">AminTivanix2</div>
+            <div class="brand-sub">3D Visualizer Engine</div>
+        </div>
+    </div>
+    <div class="status-row">
+        <div class="status-dot"></div>
+        <div class="status-dot"></div>
+        <div class="status-dot"></div>
+    </div>
+    <label class="btn-upload">
+        <span class="upload-icon">⊕</span>
+        <span class="upload-text">Import Model (Max 7)</span>
+        <input type="file" id="file-input" accept=".glb,.gltf" style="display:none;" />
+    </label>
+</div>
+
+<!-- Side stat chips -->
+<div id="side-panel">
+    <div class="stat-chip">
+        <div class="stat-label">Models</div>
+        <div class="stat-value" id="stat-models">0/7</div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-label">Engine</div>
+        <div class="stat-value" style="font-size:11px; color: #00e5ff; text-shadow: 0 0 12px rgba(0,245,255,0.9), 0 0 24px rgba(0,245,255,0.5);">LIVE</div>
+    </div>
+</div>
+
+<!-- Mobile Drawer Overlay -->
+<div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+
+<!-- Mobile Models Drawer -->
+<div id="mobile-drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-title">Loaded Models</div>
+    <div id="mobile-model-list">
+        <div style="text-align:center; color:var(--text-dim); font-size:11px; padding:16px; letter-spacing:1px;">No models loaded</div>
+    </div>
+</div>
+
+<!-- Bottom info bar -->
+<div id="bottom-bar">
+    <div class="bottom-bar-version">v2.2.0</div>
+    <div class="bottom-bar-dot"></div>
+    <div class="bottom-bar-text">Developed by</div>
+    <div class="bottom-bar-dot" style="animation-delay:0.4s;"></div>
+    <div class="bottom-bar-author">Amin Moniry</div>
+</div>
+
+<div id="toast-notification"></div>
+
+<script>
+    let scene, camera, renderer, controls, clock;
+    let loadedModels = [];
+    let mixer;
+    let activeActions = [];
+    let animationsMap = {};
+    let typewriterActive = true;
+
+    const toast = {
+        el: document.getElementById('toast-notification'),
+        show: function(text, type) {
+            this.el.className = `toast-${type} show`;
+            this.el.childNodes[this.el.childNodes.length - 1]
+                ? (this.el.lastChild.textContent = text)
+                : (this.el.innerText = text);
+            this.el.innerHTML = `<span></span>${text}`;
+            this.el.className = `toast-${type} show`;
+            if (type !== 'loading') {
+                setTimeout(() => this.el.classList.remove('show'), 3000);
+            }
+        },
+        hide: function() { this.el.classList.remove('show'); }
+    };
+
+    function init() {
+        clock = new THREE.Clock();
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.85;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 + 0.05;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        keyLight.position.set(6, 8, 6);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0xd896ff, 0.2);
+        fillLight.position.set(-6, 4, 3);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0x9d00ff, 0.45);
+        rimLight.position.set(0, 5, -6);
+        scene.add(rimLight);
+
+        const gridHelper = new THREE.GridHelper(80, 40, 0x9d00ff, 0x120d24);
+        gridHelper.position.y = -0.01;
+        scene.add(gridHelper);
+
+        window.addEventListener('resize', onWindowResize, false);
+        animate();
+        startTypewriter();
+
+        // Double-click to focus on a model
+        // Track mousedown position to distinguish click from drag
+        let mouseDownX = 0, mouseDownY = 0;
+
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            mouseDownX = e.clientX;
+            mouseDownY = e.clientY;
+        });
+
+        renderer.domElement.addEventListener('mouseup', (e) => {
+            // Only fire if not a drag (moved less than 5px)
+            const dx = Math.abs(e.clientX - mouseDownX);
+            const dy = Math.abs(e.clientY - mouseDownY);
+            if (dx > 5 || dy > 5) return;
+
+            if (loadedModels.length === 0) return;
+
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Only test against loaded models (not grid/lights)
+            let allMeshes = [];
+            loadedModels.forEach(model => {
+                model.traverse(child => {
+                    if (child.isMesh) allMeshes.push(child);
+                });
+            });
+
+            const hits = raycaster.intersectObjects(allMeshes, false);
+
+            if (hits.length === 0) {
+                // Clicked empty — reset if we were focused
+                if (focusLerping || focusedModel) {
+                    resetFocus();
+                    toast.show('Showing all models', 'success');
+                }
+                return;
+            }
+
+            // Find which loadedModel owns the hit mesh
+            const hitMesh = hits[0].object;
+            let found = null;
+            for (const model of loadedModels) {
+                let isChild = false;
+                model.traverse(child => { if (child === hitMesh) isChild = true; });
+                if (isChild) { found = model; break; }
+            }
+            if (found) focusOnModel(found);
+        });
+    }
+
+    function startTypewriter() {
+        const textEl = document.getElementById('typewriter-text');
+        const fullText = "Awaiting 3D Engine Input";
+        let isDeleting = false;
+        let textIndex = 0;
+
+        function typeLoop() {
+            if (!typewriterActive) return;
+            textEl.innerText = fullText.substring(0, textIndex);
+            let delay = isDeleting ? 45 : 85;
+            if (!isDeleting && textIndex <= fullText.length) textIndex++;
+            else if (isDeleting && textIndex >= 0) textIndex--;
+            if (textIndex > fullText.length) { isDeleting = true; delay = 1800; }
+            else if (textIndex < 0) { isDeleting = false; textIndex = 0; delay = 600; }
+            setTimeout(typeLoop, delay);
+        }
+        typeLoop();
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Focus target lerp state
+    let focusTarget = null;      // Vector3 we want controls.target to reach
+    let focusLerping = false;
+    let focusCamTarget = null;   // camera position goal
+    let focusedModel = null;     // currently focused model
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
+
+        // Smooth focus lerp
+        if (focusLerping && focusTarget) {
+            controls.target.lerp(focusTarget, 0.1);
+            camera.position.lerp(focusCamTarget, 0.1);
+            if (controls.target.distanceTo(focusTarget) < 0.005) {
+                controls.target.copy(focusTarget);
+                camera.position.copy(focusCamTarget);
+                focusLerping = false;
+            }
+        }
+
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    function updateStatPanel() {
+        const el = document.getElementById('stat-models');
+        if (el) el.textContent = `${loadedModels.length}/7`;
+    }
+
+    function checkPlaceholderVisibility() {
+        const placeholder = document.getElementById('placeholder-anim');
+        if (loadedModels.length > 0) {
+            placeholder.style.opacity = '0';
+            typewriterActive = false;
+        } else {
+            placeholder.style.opacity = '1';
+            if (!typewriterActive) {
+                typewriterActive = true;
+                startTypewriter();
+            }
+        }
+    }
+
+    function adjustSceneLayout() {
+        if (loadedModels.length === 0) return;
+
+        let sizes = [];
+        let spacingGap = 1.5;
+
+        loadedModels.forEach((model) => {
+            let box = new THREE.Box3().setFromObject(model);
+            let size = box.getSize(new THREE.Vector3());
+            sizes.push(size);
+        });
+
+        let positions = [];
+        let accumX = 0;
+
+        for (let i = 0; i < loadedModels.length; i++) {
+            positions.push(accumX + sizes[i].x / 2);
+            accumX += sizes[i].x + spacingGap;
+        }
+
+        let groupCenterX = accumX / 2;
+
+        loadedModels.forEach((model, index) => {
+            model.position.x = positions[index] - groupCenterX;
+            model.position.y = 0;
+            model.position.z = 0;
+        });
+
+        let combinedBox = new THREE.Box3();
+        loadedModels.forEach(model => {
+            combinedBox.union(new THREE.Box3().setFromObject(model));
+        });
+
+        const center = combinedBox.getCenter(new THREE.Vector3());
+        const size = combinedBox.getSize(new THREE.Vector3()).length();
+
+        const dist = size * 1.4;
+        camera.position.set(0, size * 0.4, dist);
+        camera.near = size * 0.01;
+        camera.far = size * 100;
+        camera.updateProjectionMatrix();
+
+        controls.minDistance = size * 0.2;
+        controls.maxDistance = size * 6;
+        controls.target.copy(center);
+        controls.update();
+    }
+
+    /* ══ FOCUS ON MODEL (double-click) ══ */
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function focusOnModel(model) {
+        focusedModel = model;
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3()).length();
+
+        // Always approach from a fixed nice angle (front-top)
+        const dist = size * 2.2;
+        focusTarget = center.clone();
+        focusCamTarget = new THREE.Vector3(
+            center.x,
+            center.y + size * 0.5,
+            center.z + dist
+        );
+
+        controls.minDistance = size * 0.15;
+        controls.maxDistance = size * 8;
+        focusLerping = true;
+        toast.show('Click empty space to show all models', 'success');
+    }
+
+    function resetFocus() {
+        focusedModel = null;
+        focusLerping = false;
+        document.querySelectorAll('.model-chip').forEach(c => c.classList.remove('focused'));
+        if (loadedModels.length === 0) return;
+        adjustSceneLayout();
+    }
+
+    function loadModel(url, filename) {
+        if (loadedModels.length >= 7) {
+            toast.show('Maximum limit of 7 models reached', 'error');
+            return;
+        }
+
+        toast.show(`Importing asset [${loadedModels.length + 1}/7]...`, 'loading');
+
+        const loader = new THREE.GLTFLoader();
+        loader.load(url, function(gltf) {
+            const tempModel = gltf.scene;
+            const box = new THREE.Box3().setFromObject(tempModel);
+            const center = box.getCenter(new THREE.Vector3());
+            tempModel.position.sub(center);
+
+            tempModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    if (child.material) child.material.depthWrite = true;
+                }
+            });
+
+            if (gltf.animations && gltf.animations.length > 0) {
+                tempModel.animations = gltf.animations;
+            }
+
+            loadedModels.push(tempModel);
+            modelNames.push(filename);
+            scene.add(tempModel);
+
+            updateStatPanel();
+            updateModelList();
+            checkPlaceholderVisibility();
+            adjustSceneLayout();
+            setupAnimations();
+            refreshAnimPanel();
+
+            toast.show(`${filename} mounted successfully`, 'success');
+        }, undefined, function(error) {
+            toast.show('Parsing structure failure', 'error');
+        });
+    }
+
+    function setupAnimations() {
+        animationsMap = {};
+        activeActions = [];
+        if (mixer) { mixer.stopAllAction(); mixer = null; }
+
+        let allClips = [];
+        loadedModels.forEach(model => {
+            if (model.animations) allClips = allClips.concat(model.animations);
+        });
+
+        if (allClips.length === 0) return;
+
+        mixer = new THREE.AnimationMixer(scene);
+
+        allClips.forEach((clip) => {
+            if (!animationsMap[clip.name]) {
+                animationsMap[clip.name] = clip;
+            }
+        });
+
+        executeAnimation(allClips[0].name);
+    }
+
+    function executeAnimation(name) {
+        if (!mixer || !animationsMap[name]) return;
+
+        activeActions.forEach(action => action.fadeOut(0.2));
+        activeActions = [];
+
+        currentAnimName = name;
+        const clip = animationsMap[name];
+        const action = mixer.clipAction(clip);
+        action.reset().fadeIn(0.2).play();
+        activeActions.push(action);
+    }
+
+    document.getElementById('file-input').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        loadModel(URL.createObjectURL(e.target.files[0]), e.target.files[0].name);
+        e.target.value = '';
+    });
+
+
+    /* ══ DRAG & DROP ══ */
+    const dropOverlay = document.getElementById('drop-overlay');
+
+    document.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dropOverlay.classList.add('active');
+    });
+
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener('dragleave', (e) => {
+        if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
+            dropOverlay.classList.remove('active');
+        }
+    });
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropOverlay.classList.remove('active');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.name.match(/\.glb$|\.gltf$/i));
+        if (files.length === 0) { toast.show('Only .glb / .gltf files supported', 'error'); return; }
+        files.forEach(file => loadModel(URL.createObjectURL(file), file.name));
+    });
+
+    /* ══ SCREENSHOT ══ */
+    function takeScreenshot() {
+        renderer.render(scene, camera);
+        const dataURL = renderer.domElement.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataURL;
+        a.download = 'AminTivanix2_capture.png';
+        a.click();
+        toast.show('Screenshot saved', 'success');
+    }
+
+    /* ══ PANEL TOGGLE ══ */
+    function togglePanel(which) {
+        const lp = document.getElementById('lighting-panel');
+        const ap = document.getElementById('anim-panel');
+        const lb = document.getElementById('btn-lighting');
+        const ab = document.getElementById('btn-anims');
+
+        if (which === 'lighting') {
+            const isOpen = lp.classList.contains('open');
+            lp.classList.toggle('open', !isOpen);
+            ap.classList.remove('open');
+            lb.classList.toggle('active', !isOpen);
+            ab.classList.remove('active');
+        } else {
+            const isOpen = ap.classList.contains('open');
+            ap.classList.toggle('open', !isOpen);
+            lp.classList.remove('open');
+            ab.classList.toggle('active', !isOpen);
+            lb.classList.remove('active');
+            if (!isOpen) refreshAnimPanel();
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#lighting-panel') && !e.target.closest('#anim-panel') &&
+            !e.target.closest('#bottom-toolbar')) {
+            document.getElementById('lighting-panel').classList.remove('open');
+            document.getElementById('anim-panel').classList.remove('open');
+            document.getElementById('btn-lighting').classList.remove('active');
+            document.getElementById('btn-anims').classList.remove('active');
+        }
+    });
+
+    /* ══ LIGHTING PRESETS ══ */
+    let lights = {};
+
+    function storeLights() {
+        scene.traverse(obj => {
+            if (obj.isAmbientLight) lights.ambient = obj;
+            if (obj.isDirectionalLight) {
+                if (!lights.key) lights.key = obj;
+                else if (!lights.fill) lights.fill = obj;
+                else if (!lights.rim) lights.rim = obj;
+            }
+        });
+    }
+
+    function applyLighting(preset, btn) {
+        if (Object.keys(lights).length === 0) storeLights();
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderer.toneMappingExposure = 0.85;
+
+        if (preset === 'studio') {
+            lights.ambient && (lights.ambient.color.set(0xffffff), lights.ambient.intensity = 0.4);
+            lights.key    && (lights.key.color.set(0xffffff),   lights.key.intensity = 0.7,    lights.key.position.set(6,8,6));
+            lights.fill   && (lights.fill.color.set(0xd896ff),  lights.fill.intensity = 0.2,   lights.fill.position.set(-6,4,3));
+            lights.rim    && (lights.rim.color.set(0x9d00ff),   lights.rim.intensity = 0.45,   lights.rim.position.set(0,5,-6));
+        } else if (preset === 'outdoor') {
+            lights.ambient && (lights.ambient.color.set(0xd0e8ff), lights.ambient.intensity = 0.6);
+            lights.key    && (lights.key.color.set(0xfff5cc),   lights.key.intensity = 1.0,    lights.key.position.set(8,12,4));
+            lights.fill   && (lights.fill.color.set(0x88ccff),  lights.fill.intensity = 0.35,  lights.fill.position.set(-6,3,2));
+            lights.rim    && (lights.rim.color.set(0xffdda0),   lights.rim.intensity = 0.25,   lights.rim.position.set(0,4,-8));
+            renderer.toneMappingExposure = 1.1;
+        } else if (preset === 'bright') {
+            lights.ambient && (lights.ambient.color.set(0xffffff), lights.ambient.intensity = 1.2);
+            lights.key    && (lights.key.color.set(0xffffff),   lights.key.intensity = 2.2,    lights.key.position.set(6,10,6));
+            lights.fill   && (lights.fill.color.set(0xffffff),  lights.fill.intensity = 1.0,   lights.fill.position.set(-6,6,3));
+            lights.rim    && (lights.rim.color.set(0xeeeeff),   lights.rim.intensity = 0.8,    lights.rim.position.set(0,5,-6));
+            renderer.toneMappingExposure = 1.6;
+        } else if (preset === 'dim') {
+            lights.ambient && (lights.ambient.color.set(0xccbbff), lights.ambient.intensity = 0.15);
+            lights.key    && (lights.key.color.set(0xddc0ff),   lights.key.intensity = 0.28,   lights.key.position.set(6,8,6));
+            lights.fill   && (lights.fill.color.set(0xaa88cc),  lights.fill.intensity = 0.08,  lights.fill.position.set(-6,4,3));
+            lights.rim    && (lights.rim.color.set(0xbd00ff),   lights.rim.intensity = 0.22,   lights.rim.position.set(0,5,-6));
+            renderer.toneMappingExposure = 0.45;
+        }
+    }
+
+    /* ══ ANIMATION PANEL ══ */
+    let currentAnimName = null;
+
+    function refreshAnimPanel() {
+        const list = document.getElementById('anim-list');
+        const names = Object.keys(animationsMap);
+        if (names.length === 0) {
+            list.innerHTML = '<div class="anim-empty">No animations loaded</div>';
+            return;
+        }
+        list.innerHTML = names.map(name => `
+            <div class="anim-item ${name === currentAnimName ? 'active' : ''}" onclick="selectAnim('${name.replace(/'/g, "\'")}', this)">
+                <div class="anim-dot"></div>
+                <span>${name}</span>
+            </div>
+        `).join('');
+    }
+
+    function selectAnim(name, el) {
+        currentAnimName = name;
+        document.querySelectorAll('.anim-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        executeAnimation(name);
+    }
+
+    /* ══ MODEL LIST (remove) ══ */
+    let modelNames = [];
+
+    /* ══ MOBILE DRAWER ══ */
+    function openMobileDrawer() {
+        document.getElementById('mobile-drawer').classList.add('open');
+        document.getElementById('mobile-drawer-overlay').classList.add('open');
+        updateMobileModelList();
+    }
+
+    function closeMobileDrawer() {
+        document.getElementById('mobile-drawer').classList.remove('open');
+        document.getElementById('mobile-drawer-overlay').classList.remove('open');
+    }
+
+    function updateMobileModelList() {
+        const list = document.getElementById('mobile-model-list');
+        if (!list) return;
+        if (modelNames.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:11px; padding:16px; letter-spacing:1px;">No models loaded</div>';
+            return;
+        }
+        list.innerHTML = modelNames.map((name, idx) => `
+            <div class="mobile-model-row" id="mobile-row-${idx}">
+                <span class="mobile-model-num">#${idx+1}</span>
+                <span class="mobile-model-name" title="${name}">${name}</span>
+                <button class="mobile-focus-btn" onclick="mobileFocusModel(${idx})" title="Focus">◎</button>
+                <button class="mobile-remove-btn" onclick="mobileRemoveModel(${idx})" title="Remove">✕</button>
+            </div>
+        `).join('');
+    }
+
+    function mobileFocusModel(idx) {
+        document.querySelectorAll('.mobile-model-row').forEach((r,i) => r.classList.toggle('focused', i===idx));
+        closeMobileDrawer();
+        focusModelByIndex(idx);
+        toast.show('Tap empty space to show all', 'success');
+    }
+
+    function mobileRemoveModel(idx) {
+        removeModel(idx);
+        updateMobileModelList();
+        if (modelNames.length === 0) closeMobileDrawer();
+    }
+
+    /* Show mobile models divider on mobile */
+    (function() {
+        if (window.innerWidth <= 480) {
+            const d = document.getElementById('div-mobile-models');
+            if (d) d.style.display = '';
+        }
+    })();
+
+    function focusModelByIndex(idx) {
+        if (!loadedModels[idx]) return;
+        // Highlight chip
+        document.querySelectorAll('.model-chip').forEach((c, i) => {
+            c.classList.toggle('focused', i === idx);
+        });
+        focusOnModel(loadedModels[idx]);
+    }
+
+    function updateModelList() {
+        const panel = document.getElementById('model-list-panel');
+        panel.innerHTML = '';
+        modelNames.forEach((name, idx) => {
+            const chip = document.createElement('div');
+            chip.className = 'model-chip';
+            chip.innerHTML = `
+                <span class="model-chip-idx">#${idx+1}</span>
+                <span class="model-chip-name" title="${name}">${name}</span>
+                <button class="model-focus-btn" onclick="focusModelByIndex(${idx})" title="Focus">◎</button>
+                <button class="model-remove-btn" onclick="removeModel(${idx})" title="Remove">✕</button>
+            `;
+            panel.appendChild(chip);
+        });
+        updateMobileModelList();
+    }
+
+    function removeModel(index) {
+        const model = loadedModels[index];
+        scene.remove(model);
+        loadedModels.splice(index, 1);
+        modelNames.splice(index, 1);
+        updateModelList();
+        updateStatPanel();
+        checkPlaceholderVisibility();
+        if (loadedModels.length > 0) {
+            adjustSceneLayout();
+            setupAnimations();
+        } else {
+            lights = {};
+        }
+        toast.show('Model removed', 'success');
+    }
+
+    init();
+</script>
+</body>
+</html>
