@@ -28,13 +28,9 @@
 
 </div>
 
-<div align="center">
-
 AminTivanix2 3D Visualizer Engine is a browser-based, standalone 3D model inspection tool built on Three.js. The engine enables users to load, inspect, and interact with `.glb` and `.gltf` formatted 3D assets directly within any modern web browser — without the requirement of a server, installation, or external dependencies. All JavaScript libraries are injected inline at build time, producing a single self-contained HTML file that runs fully offline.
 
 The application targets 3D artists, game developers, product designers, and technical reviewers who require a lightweight, portable solution for real-time 3D asset inspection. The engine supports simultaneous loading of up to seven models, GLTF animation playback, multiple lighting presets, model focus via click interaction, drag-and-drop import, and high-resolution screenshot export — all within a responsive cyberpunk-aesthetic interface built with Orbitron and Space Mono typography.
-
-</div>
 
 <br/>
 
@@ -45,10 +41,6 @@ The application targets 3D artists, game developers, product designers, and tech
 <div align="center">
 
 ## `◈` Features
-
-</div>
-
-<div align="center">
 
 | `▶` Feature | Description | Status |
 |:-----------:|:-----------:|:------:|
@@ -79,10 +71,6 @@ The application targets 3D artists, game developers, product designers, and tech
 
 ## `◈` Tech Stack
 
-</div>
-
-<div align="center">
-
 | Layer | Technologies |
 |:-----:|:------------:|
 | **3D Rendering** | Three.js r128 — UMD bundle, inlined at build time |
@@ -106,10 +94,6 @@ The application targets 3D artists, game developers, product designers, and tech
 
 ## `◈` Screenshots
 
-</div>
-
-<div align="center">
-
 <img src="assets/main.png" width="80%"/>
 
 *`▶` Engine idle state — animated hologram placeholder prior to model import*
@@ -128,13 +112,9 @@ The application targets 3D artists, game developers, product designers, and tech
 
 ---
 
-<div align="center">
-
 ## `◈` Project Structure
 
-</div>
-
-<div align="center">
+<img src="https://readme-typing-svg.herokuapp.com?font=Share+Tech+Mono&size=13&duration=3000&pause=999999&color=9D4EDD&center=false&vCenter=true&width=480&height=28&lines=%E2%96%B6+Repository+layout+%E2%80%94+AminTivanix2+3D+Visualizer"/>
 
 ```
 3D_Visualizer/
@@ -157,43 +137,31 @@ The application targets 3D artists, game developers, product designers, and tech
 └── LICENSE
 ```
 
-</div>
-
 <br/>
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ---
 
-<div align="center">
-
 ## `◈` Installation
 
-</div>
+### `▲` Option A — Download Pre-Built Release
 
-<div align="center">
+> **Recommended** — no Python, no build step, no internet required after download.
 
-### `▲` Option A — Download Pre-Built Release `(Recommended)`
+![Step](https://img.shields.io/badge/01-Navigate_to_Releases-9D4EDD?style=flat-square&labelColor=0d0015) &nbsp; Go to the [**Releases**](https://github.com/Amin-Moniry/3D_Visualizer/releases) page on GitHub.
 
-The `AminTivanix2_3D_Visualizer.html` file is distributed as a self-contained release.
-No installation, server, or internet connection is required after download.
+![Step](https://img.shields.io/badge/02-Download_the_HTML-9D4EDD?style=flat-square&labelColor=0d0015) &nbsp; Download `AminTivanix2_3D_Visualizer.html` from the latest release.
 
-</div>
+![Step](https://img.shields.io/badge/03-Open_in_Browser-9D4EDD?style=flat-square&labelColor=0d0015) &nbsp; Open the file in Chrome, Firefox, or Edge — no server needed.
 
-1. Navigate to the [**Releases**](https://github.com/Amin-Moniry/3D_Visualizer/releases) page.
-2. Download `AminTivanix2_3D_Visualizer.html` from the latest release.
-3. Open the file in any modern web browser — Chrome, Firefox, or Edge.
-4. Import a `.glb` or `.gltf` model via the **Import Model** button or drag and drop.
+![Step](https://img.shields.io/badge/04-Import_a_Model-9D4EDD?style=flat-square&labelColor=0d0015) &nbsp; Click **Import Model** or drag and drop a `.glb` / `.gltf` file.
 
 <br/>
 
-<div align="center">
-
 ### `▲` Option B — Build from Source
 
-**Prerequisite:** Python 3.8 or higher
-
-</div>
+> **Prerequisite:** Python 3.8 or higher installed on your system.
 
 **Windows**
 
@@ -213,11 +181,7 @@ pip3 install -r requirements.txt
 python3 build_viewer.py
 ```
 
-<div align="center">
-
 The script reads `universal_template.html`, inlines `three.min.js`, `GLTFLoader.js`, and `OrbitControls.js` at their `INJECT_` placeholders, and writes the final output to `AminTivanix2_3D_Visualizer.html`.
-
-</div>
 
 <br/>
 
@@ -225,83 +189,58 @@ The script reads `universal_template.html`, inlines `three.min.js`, `GLTFLoader.
 
 ---
 
-<div align="center">
-
 ## `◈` Usage
 
-</div>
-
-<div align="center">
+<img src="https://readme-typing-svg.herokuapp.com?font=Share+Tech+Mono&size=13&duration=3000&pause=999999&color=9D4EDD&center=false&vCenter=true&width=520&height=28&lines=%E2%96%B6+Basic+controls+%E2%80%94+open%2C+navigate%2C+inspect"/>
 
 1. Open `AminTivanix2_3D_Visualizer.html` in a modern web browser.
 2. Click **Import Model** (top-right) or drag and drop a `.glb` / `.gltf` file onto the viewport.
-3. Navigate the scene — **left-click drag** → orbit · **right-click drag** → pan · **scroll wheel** → zoom.
+3. Navigate the scene — **left-click drag** → orbit &nbsp;·&nbsp; **right-click drag** → pan &nbsp;·&nbsp; **scroll wheel** → zoom.
 4. Click any model directly in the viewport to smoothly focus the camera on it; click empty space to return to full scene view.
 5. Use the **Lighting** button in the bottom toolbar to switch between Studio, Outdoor, Bright, and Dim presets.
 6. Use the **Animations** button to view and switch between any embedded GLTF animation clips.
 7. Click **Screenshot** in the bottom toolbar to export the current viewport as a `.png` file.
 
-</div>
-
 <br/>
-
-<div align="center">
 
 ### `◈` Model Panel — Managing Loaded Models
 
-</div>
+<img src="https://readme-typing-svg.herokuapp.com?font=Share+Tech+Mono&size=13&duration=3000&pause=999999&color=9D4EDD&center=false&vCenter=true&width=560&height=28&lines=%E2%96%B6+Model+list+panel+%E2%80%94+desktop+left+%2F+mobile+drawer"/>
 
-<div align="center">
+After importing, each model appears as a named entry in the **model list panel** on the left side of the screen (desktop) or inside the slide-up drawer accessible via the `📦 Models` button in the bottom toolbar (mobile).
 
-After importing, each model appears as a named entry in the **model list panel** (left side on desktop · slide-up drawer on mobile via the `📦 Models` button).
+Each entry provides two action buttons:
 
-Each entry contains two action buttons:
+| Button | Symbol | What it does |
+|--------|:------:|--------------|
+| **Focus** | `◎` | Smoothly lerps the camera directly onto that model for close inspection |
+| **Remove** | `✕` | Permanently removes the model from the scene and frees the slot |
 
-</div>
+> `◎` **Focus** — press this to isolate any one model. The camera animates directly to it. Press it again or click empty space to return to the full scene view.
 
-<div align="center">
+> `✕` **Remove** — press this to delete a model from the scene. The slot becomes available again. Up to **7 models** can be loaded simultaneously.
 
-| Button | Symbol | Action |
-|:------:|:------:|:------:|
-| **Focus** | `◎` | Smoothly zooms the camera onto that specific model in the viewport |
-| **Remove** | `✕` | Removes the model from the scene and frees the slot |
-
-</div>
-
-<div align="center">
-
-> `▶` Tap `◎` to isolate and inspect any individual model — the camera lerps directly to it.
-> Tap `✕` to permanently remove a model from the scene. Up to **7 models** can be loaded simultaneously.
-> On mobile, open the drawer via **`📦 Models`** in the bottom toolbar to access these controls.
-
-</div>
+> On **mobile**, tap `📦 Models` in the bottom toolbar to open the drawer, then use the same `◎` and `✕` buttons inside the list.
 
 <br/>
 
-<div align="center">
-
 ### `⚠` Preparing Your Model in Blender
 
-</div>
+<img src="https://readme-typing-svg.herokuapp.com?font=Share+Tech+Mono&size=13&duration=3000&pause=999999&color=BD4EDD&center=false&vCenter=true&width=560&height=28&lines=%E2%96%B6+Required+Blender+settings+before+GLB+export"/>
 
-<div align="center">
+For correct rendering in the engine, follow these steps in Blender before exporting:
 
-For correct rendering in the engine, follow these export steps in Blender:
+![Step](https://img.shields.io/badge/01-Principled_BSDF-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; Use **Principled BSDF** for all materials — the GLTF exporter only supports PBR-compatible node trees.
 
-</div>
+![Step](https://img.shields.io/badge/02-Shading_Workspace-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; In the **Shading** workspace, connect Base Color, Roughness, Metallic, and Normal maps correctly to Principled BSDF.
 
-<div align="center">
+![Step](https://img.shields.io/badge/03-Non--Color_Space-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; Set the color space of Roughness, Metallic, and Normal textures to **Non-Color** to avoid incorrect rendering.
 
-| Step | Action |
-|:----:|:------:|
-| **1** | Use **Principled BSDF** for all materials — the GLTF exporter only supports PBR nodes |
-| **2** | In the **Shading** workspace, connect Base Color, Roughness, Metallic, and Normal maps to Principled BSDF |
-| **3** | Set Roughness, Metallic, and Normal texture color space to **Non-Color** |
-| **4** | Export via `File → Export → glTF 2.0` and select **GLB** (single binary file) |
-| **5** | Enable **Apply Modifiers**, **Include Animations**, and **Export Materials** in export settings |
-| **6** | The engine applies **ACES Filmic Tone Mapping** — PBR materials will render accurately without adjustment |
+![Step](https://img.shields.io/badge/04-Export_as_GLB-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; Go to `File → Export → glTF 2.0` and select **GLB** (single binary file) for maximum compatibility.
 
-</div>
+![Step](https://img.shields.io/badge/05-Export_Options-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; Enable **Apply Modifiers**, **Include Animations**, and **Export Materials** in the export settings panel.
+
+![Step](https://img.shields.io/badge/06-Tone_Mapping-BD4EDD?style=flat-square&labelColor=0d0015) &nbsp; The engine applies **ACES Filmic Tone Mapping** — PBR materials will render accurately without further adjustment.
 
 <br/>
 
@@ -309,13 +248,9 @@ For correct rendering in the engine, follow these export steps in Blender:
 
 ---
 
-<div align="center">
-
 ## `◈` Roadmap
 
-</div>
-
-<div align="center">
+<img src="https://readme-typing-svg.herokuapp.com?font=Share+Tech+Mono&size=13&duration=3000&pause=999999&color=9D4EDD&center=false&vCenter=true&width=460&height=28&lines=%E2%96%B6+Planned+features+for+upcoming+versions"/>
 
 - [ ] HDR environment map (HDRI) support for image-based lighting
 - [ ] Per-model transform gizmos — position, rotation, and scale handles in viewport
@@ -328,21 +263,13 @@ For correct rendering in the engine, follow these export steps in Blender:
 - [ ] VR / WebXR mode for headset-based inspection
 - [ ] Drag-and-drop texture replacement on loaded materials
 
-</div>
-
 <br/>
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ---
 
-<div align="center">
-
 ## `◈` Contributing
-
-</div>
-
-<div align="center">
 
 1. Fork the repository via the **Fork** button on GitHub.
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
@@ -351,8 +278,6 @@ For correct rendering in the engine, follow these export steps in Blender:
 5. Open a **Pull Request** against the `master` branch of this repository.
 
 All derivative works must retain the name **AminTivanix2 3D Visualizer Engine** and credit **Amin Moniry** as Original Author per the LICENSE terms. Contributors may not claim sole ownership of the core engine.
-
-</div>
 
 <br/>
 
