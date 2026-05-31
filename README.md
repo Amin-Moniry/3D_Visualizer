@@ -16,9 +16,17 @@
 
 <br/><br/>
 
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+![Windows](https://img.shields.io/badge/Windows-compatible-9D4EDD?style=flat-square&logo=windows&logoColor=9D4EDD&labelColor=0d0015)
+![macOS](https://img.shields.io/badge/macOS-compatible-9D4EDD?style=flat-square&logo=apple&logoColor=9D4EDD&labelColor=0d0015)
+![Linux](https://img.shields.io/badge/Linux-compatible-9D4EDD?style=flat-square&logo=linux&logoColor=9D4EDD&labelColor=0d0015)
+![Android](https://img.shields.io/badge/Android-compatible-9D4EDD?style=flat-square&logo=android&logoColor=9D4EDD&labelColor=0d0015)
+![iOS](https://img.shields.io/badge/iOS-compatible-9D4EDD?style=flat-square&logo=apple&logoColor=9D4EDD&labelColor=0d0015)
 
 </div>
+
+<br/>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ---
 
