@@ -42,22 +42,26 @@ The application targets 3D artists, game developers, product designers, and tech
 
 ## `◈` Features
 
-| `▶` Feature | Description | Status |
-|:-----------:|:-----------:|:------:|
-| **Standalone HTML Export** | Build script inlines all libraries into a single portable `.html` file | ✅ Complete |
-| **Multi-Model Loading** | Import and display up to 7 `.glb` / `.gltf` models simultaneously | ✅ Complete |
-| **Drag & Drop Import** | Drop model files directly onto the viewport to load them | ✅ Complete |
-| **OrbitControls Navigation** | Smooth orbit, pan, and zoom navigation with damping | ✅ Complete |
-| **Click-to-Focus** | Click any loaded model to smoothly lerp the camera onto it | ✅ Complete |
-| **GLTF Animation Playback** | Auto-detects embedded animations with a switchable selection panel | ✅ Complete |
-| **Lighting Presets** | Studio, Outdoor, Bright, and Dim presets with one-click switching | ✅ Complete |
-| **Screenshot Export** | Renders and downloads the current viewport as a `.png` file | ✅ Complete |
-| **Model Management Panel** | Named model list with per-model focus and removal controls | ✅ Complete |
-| **Mobile Responsive Drawer** | Full touch-optimized model management drawer for narrow viewports | ✅ Complete |
-| **Animated Background Grid** | Drifting perspective grid with radial vignette for depth effect | ✅ Complete |
-| **ACES Filmic Tone Mapping** | Cinematic tone mapping and sRGB output encoding via Three.js | ✅ Complete |
-| **Custom Build Pipeline** | Python script assembles the template and injects library bundles | ✅ Complete |
-| **Multi-Model Auto-Layout** | Models are spaced and centered automatically after each import | ✅ Complete |
+<small>
+
+| <sub>`▶` Feature</sub> | <sub>Description</sub> | <sub>Status</sub> |
+|:-----------------------:|:----------------------:|:-----------------:|
+| <sub>Standalone HTML Export</sub> | <sub>Build script inlines all libraries into a single portable `.html` file</sub> | <sub>✅ Complete</sub> |
+| <sub>Multi-Model Loading</sub> | <sub>Import and display up to 7 `.glb` / `.gltf` models simultaneously</sub> | <sub>✅ Complete</sub> |
+| <sub>Drag & Drop Import</sub> | <sub>Drop model files directly onto the viewport to load them</sub> | <sub>✅ Complete</sub> |
+| <sub>OrbitControls Navigation</sub> | <sub>Smooth orbit, pan, and zoom navigation with damping</sub> | <sub>✅ Complete</sub> |
+| <sub>Click-to-Focus</sub> | <sub>Click any loaded model to smoothly lerp the camera onto it</sub> | <sub>✅ Complete</sub> |
+| <sub>GLTF Animation Playback</sub> | <sub>Auto-detects embedded animations with a switchable selection panel</sub> | <sub>✅ Complete</sub> |
+| <sub>Lighting Presets</sub> | <sub>Studio, Outdoor, Bright, and Dim presets with one-click switching</sub> | <sub>✅ Complete</sub> |
+| <sub>Screenshot Export</sub> | <sub>Renders and downloads the current viewport as a `.png` file</sub> | <sub>✅ Complete</sub> |
+| <sub>Model Management Panel</sub> | <sub>Named model list with per-model focus and removal controls</sub> | <sub>✅ Complete</sub> |
+| <sub>Mobile Responsive Drawer</sub> | <sub>Full touch-optimized model management drawer for narrow viewports</sub> | <sub>✅ Complete</sub> |
+| <sub>Animated Background Grid</sub> | <sub>Drifting perspective grid with radial vignette for depth effect</sub> | <sub>✅ Complete</sub> |
+| <sub>ACES Filmic Tone Mapping</sub> | <sub>Cinematic tone mapping and sRGB output encoding via Three.js</sub> | <sub>✅ Complete</sub> |
+| <sub>Custom Build Pipeline</sub> | <sub>Python script assembles the template and injects library bundles</sub> | <sub>✅ Complete</sub> |
+| <sub>Multi-Model Auto-Layout</sub> | <sub>Models are spaced and centered automatically after each import</sub> | <sub>✅ Complete</sub> |
+
+</small>
 
 </div>
 
@@ -313,15 +317,15 @@ Any forks, modifications, or distributions must prominently retain the name **Am
 
 <br/>
 
-[![Email](https://img.shields.io/badge/◈_EMAIL-amintivanix2%40gmail.com-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=gmail&logoColor=9D4EDD)](mailto:amintivanix2@gmail.com)
+[![Issues](https://img.shields.io/badge/◈_ISSUES-Bug%20Report-6A0DAD?style=for-the-badge&labelColor=0d0015&logo=githubactions&logoColor=9D4EDD)](https://github.com/Amin-Moniry/3D_Visualizer/issues)
 
 [![GitHub](https://img.shields.io/badge/◈_GITHUB-Amin--Moniry-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=github&logoColor=9D4EDD)](https://github.com/Amin-Moniry)
 
-[![Telegram](https://img.shields.io/badge/◈_TELEGRAM-@amintivanix2-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=telegram&logoColor=9D4EDD)](https://t.me/amintivanix2)
-
 [![Website](https://img.shields.io/badge/◈_WEBSITE-allin1wrench.ir-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=firefox&logoColor=9D4EDD)](https://allin1wrench.ir)
 
-[![Issues](https://img.shields.io/badge/◈_ISSUES-Report%20a%20Bug-6A0DAD?style=for-the-badge&labelColor=0d0015&logo=githubactions&logoColor=9D4EDD)](https://github.com/Amin-Moniry/3D_Visualizer/issues)
+[![Telegram](https://img.shields.io/badge/◈_TELEGRAM-@amintivanix2-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=telegram&logoColor=9D4EDD)](https://t.me/amintivanix2)
+
+[![Email](https://img.shields.io/badge/◈_EMAIL-amintivanix2%40gmail.com-9D4EDD?style=for-the-badge&labelColor=0d0015&logo=gmail&logoColor=9D4EDD)](mailto:amintivanix2@gmail.com)
 
 </div>
 
