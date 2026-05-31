@@ -28,9 +28,13 @@
 
 </div>
 
+<div align="center">
+
 AminTivanix2 3D Visualizer Engine is a browser-based, standalone 3D model inspection tool built on Three.js. The engine enables users to load, inspect, and interact with `.glb` and `.gltf` formatted 3D assets directly within any modern web browser — without the requirement of a server, installation, or external dependencies. All JavaScript libraries are injected inline at build time, producing a single self-contained HTML file that runs fully offline.
 
 The application targets 3D artists, game developers, product designers, and technical reviewers who require a lightweight, portable solution for real-time 3D asset inspection. The engine supports simultaneous loading of up to seven models, GLTF animation playback, multiple lighting presets, model focus via click interaction, drag-and-drop import, and high-resolution screenshot export — all within a responsive cyberpunk-aesthetic interface built with Orbitron and Space Mono typography.
+
+</div>
 
 <br/>
 
